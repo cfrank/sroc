@@ -1,0 +1,131 @@
+SROC: Simple Read-Only Configuration
+====================================
+
+- Overview
+- File Syntax
+- API
+- Installation Instructions
+- Contribution information
+- License information
+
+Overview
+========
+
+sroc is a configuration file implementation which allows application developers
+to implement simple configuration file parsing. It provides a simple file syntax
+and small api where the only goal is to result in a key value store that can be
+queried for configuration information.
+
+File Syntax
+===========
+
+sroc files are heavily based on existing ini/toml files but are NOT drop in
+replacements for those formats. The goal is not to allow for reading init or
+toml files.
+
+Explained simply sroc files are a collection of key value pairs where the value
+may be one of the following types:
+ - Booleans
+ - Strings
+ - Numbers (int/float)
+ - Arrays
+ - Objects
+
+These key-value pairs can be grouped together using sections (similarly to ini
+and toml)
+
+## Booleans ##
+Booleans can be described as values which contain the keyword "true" or "false"
+
+my_key = true
+
+my_key = false
+
+Spec:
+ - The value is case sensitive
+
+## Strings ##
+Strings can be described as values which are surrounded by double quotes
+
+my_string = "A string" => A string
+
+my_string = "He said \"Hello\"" => He said "Hello"
+
+my_string = "Here is a list: \
+one\
+two\
+three\
+" => Here is a list: one two three
+
+my_string = "Here is a back slash \\" => Here is a back slash \
+
+Spec:
+ - All strings must be surrounded in double quotes
+ - A character can be escaped by using a \
+  - Anything that comes after a '\' will be treated as a character in the string
+  - Multi line strings can be created by using the escape char
+
+## Numbers ##
+Numbers can be described as values which contain number characters
+
+my_int = 100 => 100
+
+my_int = -100 => -100
+
+my_float = 100.0 => 100.0
+
+my_float = -100.0 => -100.0
+
+my_int = 1,000,000 => 1000000
+
+my_int = -1,000,000 => -1000000
+
+my_float = 1,000,000.0 => 1000000.0
+
+my_float = -1,000,000.0 => -1000000.0
+
+Spec:
+ - All numbers are stored as int64_t
+ - All commas are ignored
+
+## Arrays ##
+Arrays can be described as sets of values, all of which are the same type
+
+my_int_array = [1,2,3] => [1,2,3]
+
+my_array = [<value>, <value>, <value>] => [<value>, <value>, <value>]
+
+my_array = [
+    <value>,
+    <value>,
+    <value>,
+] => [<value>, <value>, <value>]
+
+Spec:
+ - Arrays can contain any valid sroc data type
+ - The list of values are surrounded by '[' ']' and split up by ','
+ - It is assumed that every value in the array is of a given type
+ - New lines are ignored thus allowing multiline arrays
+ - Trailing commas are ignored
+
+## Objects ##
+Objects can be described as key value pairs where the key is a string and the
+value is any valid sroc data type
+
+my_object = {first_name: chris, last_name: frank} =>
+    {first_name: chris, last_name: frank}
+
+my_object = {
+    first_name: chris,
+    last_name: frank,
+} => {first_name: chris, last_name: frank}
+
+Spec:
+ - Object keys are always single word strings
+ - Object values are any valid sroc data types
+ - new-lines and spaces are ignored when surrounding items
+ - when reading a value the spaces and new-lines ahead of the first non-type
+ character are ignored (For example in a string value everything ahead of the
+ first alpha-numeric key is ignored - If you wished to have a space as the first
+ character in a string you would have to escape it using '\')
+
