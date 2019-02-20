@@ -129,8 +129,8 @@ Spec:
  first alpha-numeric key is ignored - If you wished to have a space as the first
  character in a string you would have to escape it using '\')
 
- API
- ===
+API
+===
 
 struct sroc_root *sroc_init(FILE *file);
 
