@@ -129,3 +129,42 @@ Spec:
  first alpha-numeric key is ignored - If you wished to have a space as the first
  character in a string you would have to escape it using '\')
 
+ API
+ ===
+
+struct sroc_root *sroc_init(FILE *file);
+
+int sroc_read_bool(bool *dest, const char *section, const char *key);
+int sroc_read_string(char *dest, const char *section, const char *key);
+int sroc_read_number(int64_t *dest, const char *section, const char *key);
+int sroc_read_array(struct sroc_value *dest, const char *section, const char *key);
+int sroc_read_object(struct sroc_root *dest, const char *section, const char *key);
+
+## Info ##
+If you pass NULL to section in any of the sroc_read_* function the root of the
+configuration file will be read (ie. anything not inside of a section)
+
+If nothing is returned from a sroc_read_* call the return value for the function
+will be -1
+
+Installation instructions
+=========================
+
+The easiest way to include sroc in your project would be to use CMake and
+include the source and compile it alongside your project.
+
+include_directories(sroc)
+
+You can also clone down the repo and install it as a dynamically linked lib
+
+git clone git@github.com:cfrank/sroc.git
+
+cd sroc
+
+mkdir build;cd build
+
+cmake ../
+
+make
+
+make install
