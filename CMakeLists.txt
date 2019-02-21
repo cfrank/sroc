@@ -35,7 +35,9 @@ endif()
 option(ENABLE_TESTING "Enable automated testing" OFF)
 
 add_library(sroc SHARED
-    src/main.c
+    src/sroc.c
+    src/util.c
+    src/util.h
 )
 
 add_library(SROC::sroc ALIAS sroc)
@@ -95,6 +97,8 @@ if(ENABLE_TESTING AND NOT IS_SUBPROJECT)
         COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
     )
 
+    add_subdirectory(vendor)
+    add_subdirectory(tests)
 endif()
 
 if (NOT IS_SUBPROJECT)
