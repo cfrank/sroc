@@ -6,6 +6,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 enum sroc_error {
         ERRNOMEM = -1,
@@ -71,8 +72,21 @@ struct sroc_table {
         struct sroc_item *items;
 };
 
+/**
+ * This is the root of the file. It contains a list of items and tables
+ *
+ * When NULL is sent as the section argument to any of the sroc_read_*
+ * functions the list of items in this struct are queried
+ */
+struct sroc_root {
+        struct sroc_item *items;
+        size_t table_count;
+        struct sroc_table *tables;
+};
+
 struct sroc_root *sroc_init(FILE *file);
-struct sroc_table *sroc_create_table(void);
+struct sroc_root *sroc_create_root(void);
+struct sroc_table *sroc_create_table(const char *key);
 
 int sroc_read_array(const struct sroc_root *root, const char *section,
                     const char *key, struct sroc_array **dest, size_t *length);
@@ -84,3 +98,6 @@ int sroc_read_object(const struct sroc_root *root, const char *section,
                      const char *key, struct sroc_table **dest);
 int sroc_read_string(const struct sroc_root *root, const char *section,
                      const char *key, char *dest);
+
+void sroc_destroy_root(struct sroc_root *root);
+void sroc_destroy_table(struct sroc_table *table);
