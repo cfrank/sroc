@@ -8,8 +8,9 @@
 #include <stdint.h>
 
 enum sroc_error {
-        ERRNOMEM,
-        ERRNOTFOUND,
+        ERRNOMEM = -1,
+        ERRNOTFOUND = -2,
+        ERRIO = -3,
 };
 
 enum sroc_data_type {
@@ -58,7 +59,7 @@ struct sroc_array {
         size_t count;
         enum sroc_data_type type;
         struct sroc_type *items;
-}
+};
 
 /**
  * A sroc table (also refered to as a section or object) is a keyed list of
@@ -71,7 +72,7 @@ struct sroc_table {
 };
 
 struct sroc_root *sroc_init(FILE *file);
-struct sroc_section *sroc_create_section();
+struct sroc_table *sroc_create_table(void);
 
 int sroc_read_array(const struct sroc_root *root, const char *section,
                     const char *key, struct sroc_array **dest, size_t *length);
