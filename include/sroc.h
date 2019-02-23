@@ -9,17 +9,17 @@
 #include <stdio.h>
 
 enum sroc_error {
-        ERRNOKEY = -1,
-        ERRNOSECTION = -2,
-        ERRNOMEM = -3,
-        ERRIO = -4,
+        SROC_ERRNOKEY = -1,
+        SROC_ERRNOSECTION = -2,
+        SROC_ERRNOMEM = -3,
+        SROC_ERRIO = -4,
 };
 
 enum sroc_type {
-        ARRAY,
-        BOOL,
-        NUMBER,
-        STRING,
+        SROC_ARRAY,
+        SROC_BOOL,
+        SROC_NUMBER,
+        SROC_STRING,
 };
 
 // Forward declare sroc_type for use with parent types
@@ -32,8 +32,8 @@ struct sroc_value;
  */
 struct sroc_array {
         size_t length;
-        enum sroc_data_type type;
-        struct sroc_value *items;
+        enum sroc_type type;
+        struct sroc_value **items;
 };
 
 /**
@@ -54,26 +54,33 @@ struct sroc_value {
  * the value is any valid sroc value
  */
 struct sroc_item {
-        const char *key;
+        char *key;
         struct sroc_value *value;
 };
 
 /**
- * The sroc table is the basis for both root files and sections. It contains a
- * key (which can be NULL when no sections exist in the root) and a list of
- * sroc items
- *
- * The size is the number of items in that particular section
+ * A sroc table (or section) is a keyed list of sroc items
  */
 struct sroc_table {
-        // If NULL then this is the root
-        const char *key;
+        char *key;
         size_t size;
-        struct sroc_item *items;
+        struct sroc_item **items;
 };
 
-struct sroc_table *sroc_init(FILE *file);
-struct sroc_table *sroc_create_table(const char *key);
+/**
+ * The sroc root is the root of the file. It contains all the sroc items that
+ * are not under a section as well as all the sections in the configuration
+ * file
+ */
+struct sroc_root {
+        size_t items_length;
+        struct sroc_item **items;
+        size_t sections_length;
+        struct sroc_table **sections;
+};
+
+struct sroc_root *sroc_init(FILE *file);
+struct sroc_table *sroc_create_table(char *key);
 
 // Get a single section from the root table
 int sroc_get_section(const struct sroc_table *root, const char *section,
@@ -87,6 +94,8 @@ int sroc_read_number(const struct sroc_table *root, const char *section,
 int sroc_read_string(const struct sroc_table *root, const char *section,
                      const char *key, char **dest);
 
+void sroc_destroy_root(struct sroc_root *root);
 void sroc_destroy_array(struct sroc_array *array);
-void sroc_destroy_type(struct sroc_type *type);
+void sroc_destroy_item(struct sroc_item *item);
+void sroc_destroy_value(struct sroc_value *value);
 void sroc_destroy_table(struct sroc_table *table);
