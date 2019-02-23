@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 #include <cmocka.h>
-#include "util.c"
+#include "../src/util.c"
 
 static void test_read_until_delimiter_null_buffer(void **state)
 {
