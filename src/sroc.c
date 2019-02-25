@@ -75,8 +75,12 @@ struct sroc_root *sroc_parse_string(const char *string)
         struct sroc_root *root = sroc_create_root();
 
         if (root == NULL) {
-                errno = ENOMEM;
+                return NULL;
+        }
 
+        struct parser_context *context = init_parser(root);
+
+        if (root == NULL) {
                 return NULL;
         }
 
@@ -84,7 +88,6 @@ struct sroc_root *sroc_parse_string(const char *string)
         int64_t line_length;
 
         while ((line_length = string_get_line(string, &current_line)) >= 0) {
-                printf("%s\n", current_line);
                 string = (string + line_length) + 1;
                 free(current_line);
         }
@@ -97,6 +100,8 @@ struct sroc_root *sroc_create_root(void)
         struct sroc_root *root = malloc(sizeof(struct sroc_root));
 
         if (root == NULL) {
+                errno = ENOMEM;
+
                 return NULL;
         }
 
