@@ -79,7 +79,10 @@ struct sroc_root {
         struct sroc_table **sections;
 };
 
-struct sroc_root *sroc_init(FILE *file);
+struct sroc_root *sroc_parse_file(FILE *file);
+struct sroc_root *sroc_parse_string(const char *g);
+
+struct sroc_root *sroc_create_root(void);
 struct sroc_table *sroc_create_table(char *key);
 
 // Get a single section from the root table

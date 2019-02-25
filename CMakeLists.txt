@@ -36,8 +36,8 @@ option(ENABLE_TESTING "Enable automated testing" OFF)
 
 add_library(sroc SHARED
     src/sroc.c
-    src/util.c
-    src/util.h
+    src/string_helper.h
+    src/string_helper.c
 )
 
 add_library(SROC::sroc ALIAS sroc)

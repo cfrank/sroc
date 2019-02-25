@@ -2,16 +2,97 @@
 // Licensed under BSD-3-Clause
 // Refer to the license.txt file included in the root of the project
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "sroc.h"
 
-struct sroc_root *sroc_init(FILE *file)
+struct sroc_root *sroc_parse_file(FILE *file)
 {
-        // TODO: Handle opening file
+        size_t file_size;
+        int32_t ftell_size;
+        fseek(file, 0L, SEEK_END);
+
+        if ((ftell_size = ftell(file) >= 0)) {
+                file_size = (size_t)ftell_size;
+        } else {
+                errno = EBADF;
+
+                return NULL;
+        }
+
+        fseek(file, 0L, SEEK_SET);
+
+        char *file_buffer = malloc(file_size + 1);
+
+        if (file_buffer == NULL) {
+                errno = ENOMEM;
+
+                return NULL;
+        }
+
+        size_t bytes_read = fread(file_buffer, sizeof(char), file_size, file);
+
+        if (bytes_read != file_size) {
+                if (feof(file) != 0) {
+                        // Encountered an EOF at the wrong position
+                        errno = EINVAL;
+
+                        return NULL;
+                }
+
+                if (ferror(file) != 0) {
+                        errno = EIO;
+
+                        return NULL;
+                }
+        }
+
+        file_buffer[file_size] = '\0';
+
+        return sroc_parse_string(file_buffer);
+}
+
+struct sroc_root *sroc_parse_string(const char *string)
+{
+        struct sroc_root *root = sroc_create_root();
+
+        if (root == NULL) {
+                errno = ENOMEM;
+
+                return NULL;
+        }
+
+        const char *current_line = string;
+
+        while (current_line) {
+                char *next_line = strchr(current_line, '\n');
+
+                if (next_line) {
+                }
+
+                return NULL;
+        }
 
         return NULL;
+}
+
+struct sroc_root *sroc_create_root(void)
+{
+        struct sroc_root *root = malloc(sizeof(struct sroc_root));
+
+        if (root == NULL) {
+                return NULL;
+        }
+
+        root->items_length = 0;
+        root->items = NULL;
+        root->sections_length = 0;
+        root->sections = NULL;
+
+        return root;
 }
 
 struct sroc_table *sroc_create_table(char *key)
