@@ -8,15 +8,16 @@
 #include <string.h>
 
 #include "sroc.h"
+#include "string_helper.h"
 
 struct sroc_root *sroc_parse_file(FILE *file)
 {
         size_t file_size;
-        int32_t ftell_size;
+        int32_t ftell_result;
         fseek(file, 0L, SEEK_END);
 
-        if ((ftell_size = ftell(file) >= 0)) {
-                file_size = (size_t)ftell_size;
+        if ((ftell_result = ftell(file) >= 0)) {
+                file_size = (size_t)ftell_result;
         } else {
                 errno = EBADF;
 
@@ -40,11 +41,15 @@ struct sroc_root *sroc_parse_file(FILE *file)
                         // Encountered an EOF at the wrong position
                         errno = EINVAL;
 
+                        free(file_buffer);
+
                         return NULL;
                 }
 
                 if (ferror(file) != 0) {
                         errno = EIO;
+
+                        free(file_buffer);
 
                         return NULL;
                 }
@@ -65,15 +70,12 @@ struct sroc_root *sroc_parse_string(const char *string)
                 return NULL;
         }
 
-        const char *current_line = string;
+        char *current_line;
+        int64_t line_length;
 
-        while (current_line) {
-                char *next_line = strchr(current_line, '\n');
-
-                if (next_line) {
-                }
-
-                return NULL;
+        while ((line_length = string_get_line(string, &current_line)) > 0) {
+                printf("%s", current_line);
+                free(current_line);
         }
 
         return NULL;
