@@ -5,7 +5,9 @@
 
 static void handle_file(FILE *file)
 {
-        sroc_parse_file(file);
+        struct sroc_root *root = sroc_parse_file(file);
+
+        sroc_destroy_root(root);
 }
 
 int main(int argc, char **argv)

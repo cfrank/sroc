@@ -63,7 +63,6 @@ struct sroc_root *sroc_parse_file(FILE *file)
 
 struct sroc_root *sroc_parse_string(const char *string)
 {
-        printf("%s\n", string);
         struct sroc_root *root = sroc_create_root();
 
         if (root == NULL) {
@@ -75,15 +74,13 @@ struct sroc_root *sroc_parse_string(const char *string)
         char *current_line;
         int64_t line_length;
 
-        while ((line_length = string_get_line(string, &current_line)) > 0) {
-                printf("%s", current_line);
-                string = (string + line_length);
+        while ((line_length = string_get_line(string, &current_line)) >= 0) {
+                printf("%s\n", current_line);
+                string = (string + line_length) + 1;
                 free(current_line);
         }
 
-        sroc_destroy_root(root);
-
-        return NULL;
+        return root;
 }
 
 struct sroc_root *sroc_create_root(void)
