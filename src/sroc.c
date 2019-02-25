@@ -42,23 +42,32 @@ struct sroc_root *sroc_parse_file(FILE *file)
                         // Encountered an EOF at the wrong position
                         errno = EINVAL;
 
-                        free(file_buffer);
-
-                        return NULL;
+                        goto free_and_return_err;
                 }
 
                 if (ferror(file) != 0) {
                         errno = EIO;
 
-                        free(file_buffer);
-
-                        return NULL;
+                        goto free_and_return_err;
                 }
         }
 
         file_buffer[file_size] = '\0';
 
-        return sroc_parse_string(file_buffer);
+        struct sroc_root *root = sroc_parse_string(file_buffer);
+
+        if (root == NULL) {
+                goto free_and_return_err;
+        }
+
+        free(file_buffer);
+
+        return root;
+
+free_and_return_err:
+        free(file_buffer);
+
+        return NULL;
 }
 
 struct sroc_root *sroc_parse_string(const char *string)
