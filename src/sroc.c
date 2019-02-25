@@ -12,21 +12,22 @@
 
 struct sroc_root *sroc_parse_file(FILE *file)
 {
-        size_t file_size;
-        int32_t ftell_result;
-        fseek(file, 0L, SEEK_END);
+        int64_t ftell_result;
+        size_t file_size = 0;
 
-        if ((ftell_result = ftell(file) >= 0)) {
-                file_size = (size_t)ftell_result;
-        } else {
+        fseek(file, 0L, SEEK_END);
+        ftell_result = ftell(file);
+
+        if (ftell_result < 0) {
                 errno = EBADF;
 
                 return NULL;
         }
 
         fseek(file, 0L, SEEK_SET);
+        file_size = (size_t)ftell_result;
 
-        char *file_buffer = malloc(file_size + 1);
+        char *file_buffer = malloc((size_t)file_size + 1);
 
         if (file_buffer == NULL) {
                 errno = ENOMEM;
@@ -62,6 +63,7 @@ struct sroc_root *sroc_parse_file(FILE *file)
 
 struct sroc_root *sroc_parse_string(const char *string)
 {
+        printf("%s\n", string);
         struct sroc_root *root = sroc_create_root();
 
         if (root == NULL) {
@@ -75,6 +77,7 @@ struct sroc_root *sroc_parse_string(const char *string)
 
         while ((line_length = string_get_line(string, &current_line)) > 0) {
                 printf("%s", current_line);
+                string = (string + line_length);
                 free(current_line);
         }
 
