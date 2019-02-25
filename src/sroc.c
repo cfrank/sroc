@@ -78,6 +78,8 @@ struct sroc_root *sroc_parse_string(const char *string)
                 free(current_line);
         }
 
+        sroc_destroy_root(root);
+
         return NULL;
 }
 
