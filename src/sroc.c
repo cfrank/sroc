@@ -27,7 +27,7 @@ struct sroc_root *sroc_parse_file(FILE *file)
         fseek(file, 0L, SEEK_SET);
         file_size = (size_t)ftell_result;
 
-        char *file_buffer = malloc((size_t)file_size + 1);
+        char *file_buffer = malloc(file_size + 1);
 
         if (file_buffer == NULL) {
                 errno = ENOMEM;
