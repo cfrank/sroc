@@ -15,12 +15,13 @@ project(libsroc
 
 set(PACKAGE_VERSION_STRING v${PROJECT_VERSION})
 set(PROJECT_STRING "${PROJECT_NAME} ${PACKAGE_VERSION_STRING}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 set(CMAKE_SRCS_DIRECTORY ${PROJECT_SOURCE_DIR}/src)
 
-add_compile_definitions(NATWM_VERSION_MAJOR=${PROJECT_VERSION_MAJOR})
-add_compile_definitions(NATWM_VERSION_MINOR=${PROJECT_VERSION_MINOR})
-add_compile_definitions(NATWM_VERSION_PATCH=${PROJECT_VERSION_PATCH})
-add_compile_definitions(NATWM_VERSION_STRING="${PROJECT_STRING}")
+add_compile_definitions(SROC_VERSION_MAJOR=${PROJECT_VERSION_MAJOR})
+add_compile_definitions(SROC_VERSION_MINOR=${PROJECT_VERSION_MINOR})
+add_compile_definitions(SROC_VERSION_PATCH=${PROJECT_VERSION_PATCH})
+add_compile_definitions(SROC_VERSION_STRING="${PROJECT_STRING}")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(IS_DEBUG_BUILD=1)
@@ -32,7 +33,8 @@ else()
     add_compile_definitions(IS_DEBUG_BUILD=1)
 endif()
 
-option(ENABLE_TESTING "Enable automated testing" OFF)
+option(SROC_ENABLE_TESTING "Enable automated testing" OFF)
+option(SROC_WITH_EXAMPLES "Build example projects" OFF)
 
 add_library(sroc SHARED
     src/sroc.c
@@ -89,7 +91,7 @@ string(APPEND CMAKE_C_FLAGS " -Wall"
     " -Wno-unused-parameter"
     " -pedantic")
 
-if(ENABLE_TESTING AND NOT IS_SUBPROJECT)
+if(SROC_ENABLE_TESTING AND NOT IS_SUBPROJECT)
     include(CTest)
     include(AddSrocTest)
     # Add a target for calling ctest with verbose output on failure
@@ -99,6 +101,10 @@ if(ENABLE_TESTING AND NOT IS_SUBPROJECT)
 
     add_subdirectory(vendor)
     add_subdirectory(tests)
+endif()
+
+if (SROC_WITH_EXAMPLES AND NOT IS_SUBPROJECT)
+    add_subdirectory(examples)
 endif()
 
 if (NOT IS_SUBPROJECT)

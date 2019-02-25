@@ -12,19 +12,20 @@
 
 struct sroc_root *sroc_parse_file(FILE *file)
 {
-        size_t file_size;
-        int32_t ftell_result;
-        fseek(file, 0L, SEEK_END);
+        int64_t ftell_result;
+        size_t file_size = 0;
 
-        if ((ftell_result = ftell(file) >= 0)) {
-                file_size = (size_t)ftell_result;
-        } else {
+        fseek(file, 0L, SEEK_END);
+        ftell_result = ftell(file);
+
+        if (ftell_result < 0) {
                 errno = EBADF;
 
                 return NULL;
         }
 
         fseek(file, 0L, SEEK_SET);
+        file_size = (size_t)ftell_result;
 
         char *file_buffer = malloc(file_size + 1);
 
@@ -41,23 +42,32 @@ struct sroc_root *sroc_parse_file(FILE *file)
                         // Encountered an EOF at the wrong position
                         errno = EINVAL;
 
-                        free(file_buffer);
-
-                        return NULL;
+                        goto free_and_return_err;
                 }
 
                 if (ferror(file) != 0) {
                         errno = EIO;
 
-                        free(file_buffer);
-
-                        return NULL;
+                        goto free_and_return_err;
                 }
         }
 
         file_buffer[file_size] = '\0';
 
-        return sroc_parse_string(file_buffer);
+        struct sroc_root *root = sroc_parse_string(file_buffer);
+
+        if (root == NULL) {
+                goto free_and_return_err;
+        }
+
+        free(file_buffer);
+
+        return root;
+
+free_and_return_err:
+        free(file_buffer);
+
+        return NULL;
 }
 
 struct sroc_root *sroc_parse_string(const char *string)
@@ -73,14 +83,13 @@ struct sroc_root *sroc_parse_string(const char *string)
         char *current_line;
         int64_t line_length;
 
-        while ((line_length = string_get_line(string, &current_line)) > 0) {
-                printf("%s", current_line);
+        while ((line_length = string_get_line(string, &current_line)) >= 0) {
+                printf("%s\n", current_line);
+                string = (string + line_length) + 1;
                 free(current_line);
         }
 
-        sroc_destroy_root(root);
-
-        return NULL;
+        return root;
 }
 
 struct sroc_root *sroc_create_root(void)
