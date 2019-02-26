@@ -32,4 +32,4 @@ void destroy_parser_context(struct parser_context *context);
 
 int64_t find_first_nonspace(const char *string);
 int64_t find_last_nonspace(const char *string);
-
+int64_t strip_surrounding_space(const char *string, char **dest);
