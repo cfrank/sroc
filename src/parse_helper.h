@@ -19,13 +19,17 @@ enum token_type {
 };
 
 struct parser_context {
-        struct sroc_root *root;
         size_t line_num;
         size_t col_num;
-        struct sroc_value *current_value;
-        struct sroc_table *current_table;
+        const struct sroc_value *current_value;
+        const struct sroc_table *current_table;
 };
 
-struct parser_context *init_parser(struct sroc_root *root);
 enum token_type char_to_token(char input);
+
+struct parser_context *init_parser(void);
+void destroy_parser_context(struct parser_context *context);
+
+int64_t find_first_nonspace(const char *string);
+int64_t find_last_nonspace(const char *string);
 
