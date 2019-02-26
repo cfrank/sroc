@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "parse_helper.h"
 #include "sroc.h"
 #include "string_helper.h"
 

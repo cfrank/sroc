@@ -2,6 +2,9 @@
 // Licensed under BSD-3-Clause
 // Refer to the license.txt file included in the root of the project
 
+#include <errno.h>
+#include <stdlib.h>
+
 #include "parse_helper.h"
 
 enum token_type char_to_token(char input)
@@ -32,7 +35,7 @@ struct parser_context *init_parser(struct sroc_root *root)
 {
         struct parser_context *context = malloc(sizeof(struct parser_context));
 
-        if (parser_context == NULL) {
+        if (context == NULL) {
                 errno = ENOMEM;
 
                 return NULL;
