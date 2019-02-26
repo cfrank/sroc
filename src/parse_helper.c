@@ -75,7 +75,7 @@ int64_t find_first_nonspace(const char *string)
 
 int64_t find_last_nonspace(const char *string)
 {
-        for (int i = (int)strlen(string) - 1; i >= 0; --i) {
+        for (int i = (int)strlen(string); i >= 0; --i) {
                 if (!isspace(string[i])) {
                         return i;
                 }
