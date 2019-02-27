@@ -71,6 +71,10 @@ int64_t string_get_line(const char *string, char **dest)
  */
 int64_t string_find_first_nonspace(const char *string)
 {
+        if (string == NULL) {
+                return -1;
+        }
+
         char ch;
         int64_t index = 0;
 
@@ -94,6 +98,10 @@ int64_t string_find_first_nonspace(const char *string)
  */
 int64_t string_find_last_nonspace(const char *string)
 {
+        if (string == NULL) {
+                return -1;
+        }
+
         int64_t index = (int64_t)strlen(string) - 1;
 
         while (index >= 0 && isspace(string[index])) {
