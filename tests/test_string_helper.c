@@ -189,6 +189,7 @@ static void test_string_find_last_nonspace_large_space(void **state)
 
         assert_int_equal(expected_result, result);
 }
+
 static void test_string_find_last_nonspace_surrounded_sentence(void **state)
 {
         int64_t expected_result = 23;
@@ -196,6 +197,73 @@ static void test_string_find_last_nonspace_surrounded_sentence(void **state)
         int64_t result = string_find_last_nonspace(test_string);
 
         assert_int_equal(expected_result, result);
+}
+
+static void test_string_splice_null(void **state)
+{
+        int64_t expected_result = -1;
+        char *dest;
+        int64_t result = string_splice(NULL, &dest, 0, 0);
+
+        assert_int_equal(expected_result, result);
+}
+
+static void test_string_splice_negative_start(void **state)
+{
+        int64_t expected_result = -1;
+        const char *test_string = "Test";
+        char *dest;
+        int64_t result = string_splice(test_string, &dest, -1, 0);
+
+        assert_int_equal(expected_result, result);
+}
+
+static void test_string_splice_larger_start(void **state)
+{
+        int64_t expected_result = -1;
+        const char *test_string = "Test";
+        char *dest;
+        int64_t result = string_splice(test_string, &dest, 10, 0);
+
+        assert_int_equal(expected_result, result);
+}
+
+static void test_string_splice_equal_indexes(void **state)
+{
+        int64_t expected_result = 1;
+        const char *test_string = "Test";
+        const char *expected_string = "e";
+        char *dest;
+        int64_t result = string_splice(test_string, &dest, 1, 1);
+
+        assert_int_equal(expected_result, result);
+        assert_string_equal(expected_string, dest);
+        assert_int_equal('\0', dest[result]);
+
+        free(dest);
+}
+
+static void test_string_splice_large_end(void **state)
+{
+        int64_t expected_result = -1;
+        const char *test_string = "Test";
+        char *dest;
+        int64_t result = string_splice(test_string, &dest, 1, 4);
+
+        assert_int_equal(expected_result, result);
+}
+
+static void test_string_splice_bounds(void **state)
+{
+        const char *test_string = "Hello world!";
+        char *dest;
+        int64_t result = string_splice(
+                test_string, &dest, 0, (int64_t)strlen(test_string));
+
+        assert_int_equal(strlen(test_string), result);
+        assert_string_equal(test_string, dest);
+
+        free(dest);
 }
 
 int main(void)
@@ -221,6 +289,12 @@ int main(void)
                 cmocka_unit_test(test_string_find_last_nonspace_large_space),
                 cmocka_unit_test(
                         test_string_find_last_nonspace_surrounded_sentence),
+                cmocka_unit_test(test_string_splice_null),
+                cmocka_unit_test(test_string_splice_negative_start),
+                cmocka_unit_test(test_string_splice_larger_start),
+                cmocka_unit_test(test_string_splice_equal_indexes),
+                cmocka_unit_test(test_string_splice_large_end),
+                cmocka_unit_test(test_string_splice_bounds),
         };
 
         return cmocka_run_group_tests(tests, NULL, NULL);

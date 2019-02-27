@@ -112,6 +112,31 @@ int64_t string_find_last_nonspace(const char *string)
         return index;
 }
 
+int64_t string_splice(const char *string, char **dest, int64_t start,
+                      int64_t end)
+{
+        if (string == NULL || end < start || end < 0 || start < 0
+            || end > (int64_t)strlen(string)) {
+                return -1;
+        }
+
+        int64_t spliced_size = (end - start) + 1;
+
+        assert(spliced_size >= 0);
+
+        *dest = malloc((size_t)spliced_size + 1);
+
+        if (*dest == NULL) {
+                return -1;
+        }
+
+        memcpy(*dest, string + start, spliced_size);
+
+        (*dest)[spliced_size] = '\0';
+
+        return spliced_size;
+}
+
 /**
  * Strips the whitespace surrounding a string and places that new string into
  * the destination with an added null terminator.
@@ -123,24 +148,6 @@ int64_t string_strip_surrounding_space(const char *string, char **dest)
         int64_t start_index = string_find_first_nonspace(string);
         int64_t end_index = string_find_last_nonspace(string);
 
-        if (start_index < 0 || end_index < 0) {
-                return -1;
-        }
-
-        int64_t stripped_size = (end_index - start_index) + 1;
-
-        assert(stripped_size >= 0);
-
-        *dest = malloc((size_t)stripped_size + 1);
-
-        if (*dest == NULL) {
-                return -1;
-        }
-
-        memcpy(*dest, string + start_index, stripped_size);
-
-        (*dest)[stripped_size] = '\0';
-
-        return stripped_size;
+        return string_splice(string, dest, start_index, end_index);
 }
 
