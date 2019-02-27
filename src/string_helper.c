@@ -2,6 +2,7 @@
 // Licensed under BSD-3-Clause
 // Refer to the license.txt file included in the root of the project
 
+#include <assert.h>
 #include <ctype.h>
 #include <errno.h>
 #include <stdint.h>
@@ -19,7 +20,7 @@
  * If a valid string is found the strlen of the resulting string is returned
  * and the string is sent into dest with an appended null terminator
  */
-int string_get_delimiter(const char *string, char delimiter, char **dest)
+int64_t string_get_delimiter(const char *string, char delimiter, char **dest)
 {
         const char *delimiter_location = strchr(string, delimiter);
 
@@ -27,9 +28,11 @@ int string_get_delimiter(const char *string, char delimiter, char **dest)
                 return -1;
         }
 
-        size_t result_length = (delimiter_location - string);
+        int64_t result_length = (delimiter_location - string);
 
-        char *buffer = malloc(result_length + 1);
+        assert(result_length >= 0);
+
+        char *buffer = malloc((size_t)result_length + 1);
 
         if (buffer == NULL) {
                 errno = ENOMEM;
@@ -55,7 +58,7 @@ int string_get_delimiter(const char *string, char delimiter, char **dest)
  * If a valid string is found the strlen of the resulting string is returned
  * and the string is sent into dest with an appended null terminator
  */
-int string_get_line(const char *string, char **dest)
+int64_t string_get_line(const char *string, char **dest)
 {
         return string_get_delimiter(string, '\n', dest);
 }
@@ -66,7 +69,7 @@ int string_get_line(const char *string, char **dest)
  *
  * If a nonspace character is found the index of that character is returned
  */
-int64_t find_first_nonspace(const char *string)
+int64_t string_find_first_nonspace(const char *string)
 {
         char ch;
         int64_t index = 0;
@@ -89,9 +92,9 @@ int64_t find_first_nonspace(const char *string)
  *
  * If a nonspace character is found the index of that character is returned
  */
-int64_t find_last_nonspace(const char *string)
+int64_t string_find_last_nonspace(const char *string)
 {
-        int64_t index = strlen(string) - 1;
+        int64_t index = (int64_t)strlen(string) - 1;
 
         while (index >= 0 && isspace(string[index])) {
                 --index;
@@ -107,18 +110,20 @@ int64_t find_last_nonspace(const char *string)
  *
  * The strlen of the new string is returned.
  */
-int64_t strip_surrounding_space(const char *string, char **dest)
+int64_t string_strip_surrounding_space(const char *string, char **dest)
 {
-        int64_t start_index = find_first_nonspace(string);
-        int64_t end_index = find_last_nonspace(string);
+        int64_t start_index = string_find_first_nonspace(string);
+        int64_t end_index = string_find_last_nonspace(string);
 
         if (start_index < 0 || end_index < 0) {
                 return -1;
         }
 
-        size_t stripped_size = (end_index - start_index) + 1;
+        int64_t stripped_size = (end_index - start_index) + 1;
 
-        *dest = malloc(stripped_size + 1);
+        assert(stripped_size >= 0);
+
+        *dest = malloc((size_t)stripped_size + 1);
 
         if (*dest == NULL) {
                 return -1;

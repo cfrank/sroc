@@ -19,7 +19,7 @@ static void test_string_get_delimiter_not_found(void **state)
         const char *test_string = "Nothing to be found here";
         char *dest = NULL;
 
-        int result = string_get_delimiter(test_string, 'x', &dest);
+        int64_t result = string_get_delimiter(test_string, 'x', &dest);
 
         assert_int_equal(expected_result, result);
         assert_null(dest);
@@ -32,7 +32,7 @@ static void test_string_get_delimiter_found(void **state)
         const char *expected_string = "Found me";
         char *dest;
 
-        int result = string_get_delimiter(test_string, '!', &dest);
+        int64_t result = string_get_delimiter(test_string, '!', &dest);
 
         assert_int_equal(expected_result, result);
         assert_string_equal(expected_string, dest);
@@ -49,7 +49,7 @@ static void test_string_get_delimiter_delimiter_is_string(void **state)
         const char *expected_string = "";
         char *dest;
 
-        int result = string_get_delimiter(test_string, '!', &dest);
+        int64_t result = string_get_delimiter(test_string, '!', &dest);
 
         assert_int_equal(expected_result, result);
         assert_string_equal(expected_string, dest);
@@ -65,7 +65,7 @@ static void test_string_get_line_found(void **state)
         size_t expected_result = strlen(expected_first_string);
         char *dest;
 
-        int result = string_get_line(test_string, &dest);
+        int64_t result = string_get_line(test_string, &dest);
 
         assert_int_equal(expected_result, result);
         assert_string_equal(expected_first_string, dest);
@@ -79,6 +79,66 @@ static void test_string_get_line_found(void **state)
         free(dest);
 }
 
+static void test_string_find_first_nonspace_empty(void **state)
+{
+        int64_t expected_result = -1;
+        const char *test_string = "";
+
+        int64_t result = string_find_first_nonspace(test_string);
+
+        assert_int_equal(expected_result, result);
+}
+
+static void test_string_find_first_nonspace_no_nonspace(void **state)
+{
+        int64_t expected_result = -1;
+        const char *test_string = "     ";
+
+        int64_t result = string_find_first_nonspace(test_string);
+
+        assert_int_equal(expected_result, result);
+}
+
+static void test_string_find_first_nonspace_single_char(void **state)
+{
+        int64_t expected_result = 0;
+        const char *test_string = "C";
+
+        int64_t result = string_find_first_nonspace(test_string);
+
+        assert_int_equal(expected_result, result);
+}
+
+static void test_string_find_first_nonspace_tab(void **state)
+{
+        int64_t expected_result = 1;
+        const char *test_string = "\tHi";
+
+        int64_t result = string_find_first_nonspace(test_string);
+
+        assert_int_equal(expected_result, result);
+}
+
+static void test_string_find_first_nonspace_large_space(void **state)
+{
+        int64_t expected_result = 10;
+        const char *test_string = "          Hi";
+
+        int64_t result = string_find_first_nonspace(test_string);
+
+        assert_int_equal(expected_result, result);
+}
+
+static void test_string_find_first_nonspace_surrounded_sentence(void **state)
+{
+        int64_t expected_result = 5;
+        const char *test_string = "     Hello world! - Test     ";
+
+        int64_t result = string_find_first_nonspace(test_string);
+
+        assert_int_equal(expected_result, result);
+}
+
 int main(void)
 {
         const struct CMUnitTest tests[] = {
@@ -86,6 +146,13 @@ int main(void)
                 cmocka_unit_test(test_string_get_delimiter_found),
                 cmocka_unit_test(test_string_get_delimiter_delimiter_is_string),
                 cmocka_unit_test(test_string_get_line_found),
+                cmocka_unit_test(test_string_find_first_nonspace_empty),
+                cmocka_unit_test(test_string_find_first_nonspace_no_nonspace),
+                cmocka_unit_test(test_string_find_first_nonspace_single_char),
+                cmocka_unit_test(test_string_find_first_nonspace_tab),
+                cmocka_unit_test(test_string_find_first_nonspace_large_space),
+                cmocka_unit_test(
+                        test_string_find_first_nonspace_surrounded_sentence),
         };
 
         return cmocka_run_group_tests(tests, NULL, NULL);
