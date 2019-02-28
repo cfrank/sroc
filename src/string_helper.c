@@ -120,7 +120,7 @@ int64_t string_splice(const char *string, char **dest, int64_t start,
                 return -1;
         }
 
-        int64_t spliced_size = (end - start) + 1;
+        int64_t spliced_size = end - start;
 
         assert(spliced_size >= 0);
 

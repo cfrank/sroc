@@ -228,11 +228,21 @@ static void test_string_splice_larger_start(void **state)
         assert_int_equal(expected_result, result);
 }
 
+static void test_string_splice_large_end(void **state)
+{
+        int64_t expected_result = -1;
+        const char *test_string = "Test";
+        char *dest;
+        int64_t result = string_splice(test_string, &dest, 0, 5);
+
+        assert_int_equal(expected_result, result);
+}
+
 static void test_string_splice_equal_indexes(void **state)
 {
-        int64_t expected_result = 1;
+        int64_t expected_result = 0;
         const char *test_string = "Test";
-        const char *expected_string = "e";
+        const char *expected_string = "";
         char *dest;
         int64_t result = string_splice(test_string, &dest, 1, 1);
 
@@ -241,16 +251,6 @@ static void test_string_splice_equal_indexes(void **state)
         assert_int_equal('\0', dest[result]);
 
         free(dest);
-}
-
-static void test_string_splice_large_end(void **state)
-{
-        int64_t expected_result = -1;
-        const char *test_string = "Test";
-        char *dest;
-        int64_t result = string_splice(test_string, &dest, 1, 4);
-
-        assert_int_equal(expected_result, result);
 }
 
 static void test_string_splice_bounds(void **state)
@@ -262,6 +262,19 @@ static void test_string_splice_bounds(void **state)
 
         assert_int_equal(strlen(test_string), result);
         assert_string_equal(test_string, dest);
+
+        free(dest);
+}
+
+static void test_string_splice_valid(void **state)
+{
+        const char *test_string = "Hello world!";
+        const char *expected_string = "lo wo";
+        char *dest;
+        int64_t result = string_splice(test_string, &dest, 3, 8);
+
+        assert_int_equal(strlen(expected_string), result);
+        assert_string_equal(expected_string, dest);
 
         free(dest);
 }
@@ -292,9 +305,10 @@ int main(void)
                 cmocka_unit_test(test_string_splice_null),
                 cmocka_unit_test(test_string_splice_negative_start),
                 cmocka_unit_test(test_string_splice_larger_start),
-                cmocka_unit_test(test_string_splice_equal_indexes),
                 cmocka_unit_test(test_string_splice_large_end),
+                cmocka_unit_test(test_string_splice_equal_indexes),
                 cmocka_unit_test(test_string_splice_bounds),
+                cmocka_unit_test(test_string_splice_valid),
         };
 
         return cmocka_run_group_tests(tests, NULL, NULL);
