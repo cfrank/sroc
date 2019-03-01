@@ -279,6 +279,40 @@ static void test_string_splice_valid(void **state)
         free(dest);
 }
 
+// Most of the tests for the following function have already been accomplished
+// in above tests since string_strip_surrounding_space just calls each of the
+// above functions to perform the logic
+
+static void test_string_strip_surrounding_space_null(void **state)
+{
+        int64_t expected_result = -1;
+        char *dest;
+        int64_t result = string_strip_surrounding_space(NULL, &dest);
+
+        assert_int_equal(expected_result, result);
+}
+
+static void test_string_strip_surrounding_space_null_dest(void **state)
+{
+        int64_t expected_result = -1;
+        const char *test_string = "Hello world";
+        int64_t result = string_strip_surrounding_space(test_string, NULL);
+
+        assert_int_equal(expected_result, result);
+}
+
+static void test_string_strip_surrounding_space_succeeds(void **state)
+{
+        const char *expected_string = "f";
+        const char *test_string = " f ";
+        char *dest;
+        int64_t result = string_strip_surrounding_space(test_string, &dest);
+
+        assert_int_equal(result, strlen(expected_string));
+        assert_string_equal(expected_string, dest);
+        assert_int_equal('\0', dest[strlen(expected_string)]);
+}
+
 int main(void)
 {
         const struct CMUnitTest tests[] = {
@@ -309,6 +343,9 @@ int main(void)
                 cmocka_unit_test(test_string_splice_equal_indexes),
                 cmocka_unit_test(test_string_splice_bounds),
                 cmocka_unit_test(test_string_splice_valid),
+                cmocka_unit_test(test_string_strip_surrounding_space_null),
+                cmocka_unit_test(test_string_strip_surrounding_space_null_dest),
+                cmocka_unit_test(test_string_strip_surrounding_space_succeeds),
         };
 
         return cmocka_run_group_tests(tests, NULL, NULL);

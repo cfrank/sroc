@@ -112,6 +112,14 @@ int64_t string_find_last_nonspace(const char *string)
         return index;
 }
 
+/**
+ * Extracts a porition of a string into dest specified by the start and end
+ * indexes. If nothing is found or there is an error -1 is returned.
+ *
+ * If a substring is found the substring is placed into dest along with an
+ * added null terminator. dest must be freed after use. The strlen of the
+ * substring is returned to the caller.
+ */
 int64_t string_splice(const char *string, char **dest, int64_t start,
                       int64_t end)
 {
@@ -145,9 +153,12 @@ int64_t string_splice(const char *string, char **dest, int64_t start,
  */
 int64_t string_strip_surrounding_space(const char *string, char **dest)
 {
+        if (string == NULL || dest == NULL) {
+                return -1;
+        }
+
         int64_t start_index = string_find_first_nonspace(string);
         int64_t end_index = string_find_last_nonspace(string);
 
         return string_splice(string, dest, start_index, end_index);
 }
-
