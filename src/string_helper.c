@@ -28,8 +28,9 @@ int64_t string_get_delimiter(const char *string, char delimiter, char **dest)
                 return -1;
         }
 
-        int64_t result_length = (delimiter_location - string);
+        int64_t result_length = delimiter_location - string;
 
+        // Make sure a valid cast to size_t can be accomplished
         assert(result_length >= 0);
 
         char *buffer = malloc((size_t)result_length + 1);
@@ -158,7 +159,11 @@ int64_t string_strip_surrounding_space(const char *string, char **dest)
         }
 
         int64_t start_index = string_find_first_nonspace(string);
-        int64_t end_index = string_find_last_nonspace(string) + 1;
+        int64_t end_index = string_find_last_nonspace(string);
 
-        return string_splice(string, dest, start_index, end_index);
+        if (start_index < 0 || end_index < 0) {
+                return -1;
+        }
+
+        return string_splice(string, dest, start_index, end_index + 1);
 }
