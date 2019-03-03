@@ -38,6 +38,8 @@ option(SROC_WITH_EXAMPLES "Build example projects" OFF)
 
 add_library(sroc SHARED
     src/sroc.c
+    src/parse_helper.h
+    src/parse_helper.c
     src/string_helper.h
     src/string_helper.c
 )
