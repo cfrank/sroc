@@ -301,16 +301,44 @@ static void test_string_strip_surrounding_space_null_dest(void **state)
         assert_int_equal(expected_result, result);
 }
 
-static void test_string_strip_surrounding_space_succeeds(void **state)
+static void test_string_strip_surrounding_space_single(void **state)
 {
         const char *expected_string = "f";
-        const char *test_string = " f ";
+        const char *test_string = "  f  ";
         char *dest;
         int64_t result = string_strip_surrounding_space(test_string, &dest);
 
         assert_int_equal(result, strlen(expected_string));
         assert_string_equal(expected_string, dest);
         assert_int_equal('\0', dest[strlen(expected_string)]);
+
+        free(dest);
+}
+
+static void test_string_strip_surrounding_space_sentence(void **state)
+{
+        const char *expected_string = "Hello world!";
+        const char *test_string = "    Hello world!    ";
+        char *dest;
+        int64_t result = string_strip_surrounding_space(test_string, &dest);
+
+        assert_int_equal(result, strlen(expected_string));
+        assert_string_equal(expected_string, dest);
+
+        free(dest);
+}
+
+static void test_string_strip_surrounding_space_single_space(void **state)
+{
+        const char *expected_string = "h";
+        const char *test_string = "h ";
+        char *dest;
+        int64_t result = string_strip_surrounding_space(test_string, &dest);
+
+        assert_int_equal(result, strlen(expected_string));
+        assert_string_equal(expected_string, dest);
+
+        free(dest);
 }
 
 int main(void)
@@ -345,7 +373,10 @@ int main(void)
                 cmocka_unit_test(test_string_splice_valid),
                 cmocka_unit_test(test_string_strip_surrounding_space_null),
                 cmocka_unit_test(test_string_strip_surrounding_space_null_dest),
-                cmocka_unit_test(test_string_strip_surrounding_space_succeeds),
+                cmocka_unit_test(test_string_strip_surrounding_space_single),
+                cmocka_unit_test(test_string_strip_surrounding_space_sentence),
+                cmocka_unit_test(
+                        test_string_strip_surrounding_space_single_space),
         };
 
         return cmocka_run_group_tests(tests, NULL, NULL);

@@ -42,7 +42,7 @@ int64_t string_get_delimiter(const char *string, char delimiter, char **dest)
 
         *dest = buffer;
 
-        memcpy(*dest, string, result_length);
+        memcpy(*dest, string, (size_t)result_length);
 
         (*dest)[result_length] = '\0';
 
@@ -138,7 +138,7 @@ int64_t string_splice(const char *string, char **dest, int64_t start,
                 return -1;
         }
 
-        memcpy(*dest, string + start, spliced_size);
+        memcpy(*dest, string + start, (size_t)spliced_size);
 
         (*dest)[spliced_size] = '\0';
 
@@ -158,7 +158,7 @@ int64_t string_strip_surrounding_space(const char *string, char **dest)
         }
 
         int64_t start_index = string_find_first_nonspace(string);
-        int64_t end_index = string_find_last_nonspace(string);
+        int64_t end_index = string_find_last_nonspace(string) + 1;
 
         return string_splice(string, dest, start_index, end_index);
 }
