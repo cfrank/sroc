@@ -7,11 +7,14 @@
 #include "sroc.h"
 
 enum token_type {
+        ALPHA_CHAR,
         CLOSE_BRACKET,
+        COMMENT_START,
         COMMA,
         EQUAL,
         ESCAPE,
         NEGATIVE,
+        NUMERIC_CHAR,
         OPEN_BRACKET,
         PERIOD,
         QUOTE,

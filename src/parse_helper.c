@@ -2,6 +2,7 @@
 // Licensed under BSD-3-Clause
 // Refer to the license.txt file included in the root of the project
 
+#include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
 
@@ -10,9 +11,20 @@
 
 enum token_type char_to_token(char input)
 {
+        if (isalpha(input)) {
+                return ALPHA_CHAR;
+        }
+
+        if (isdigit(input)) {
+                return NUMERIC_CHAR;
+        }
+
         switch (input) {
         case ']':
                 return CLOSE_BRACKET;
+        case ';':
+        case '#':
+                return COMMENT_START;
         case ',':
                 return COMMA;
         case '=':
