@@ -11,49 +11,83 @@
 #include "sroc.h"
 #include "string_helper.h"
 
-struct sroc_root *sroc_parse_file(FILE *file)
+static int64_t get_file_size(FILE *file)
 {
-        int64_t ftell_result;
-        size_t file_size = 0;
-
         fseek(file, 0L, SEEK_END);
-        ftell_result = ftell(file);
+        int64_t size = ftell(file);
 
-        if (ftell_result < 0) {
+        if (size < 0) {
                 errno = EBADF;
 
-                return NULL;
+                return -1;
         }
 
         fseek(file, 0L, SEEK_SET);
-        file_size = (size_t)ftell_result;
 
-        char *file_buffer = malloc(file_size + 1);
+        return size;
+}
 
-        if (file_buffer == NULL) {
+/**
+ * Takes an uninitalized string and places the contents of a file into it
+ *
+ * The buffer is initialized with file_size + 1 bytes and must be freed by the
+ * caller
+ *
+ * file_size bytes are read from file and placed in the buffer. The buffer is
+ * then appended with a null terminator
+ */
+static int read_file_into_buffer(FILE *file, char **buffer, size_t file_size)
+{
+        *buffer = malloc(file_size + 1);
+
+        if (*buffer == NULL) {
                 errno = ENOMEM;
 
-                return NULL;
+                return -1;
         }
 
-        size_t bytes_read = fread(file_buffer, sizeof(char), file_size, file);
+        size_t bytes_read = fread(*buffer, 1, file_size, file);
 
         if (bytes_read != file_size) {
                 if (feof(file) != 0) {
-                        // Encountered an EOF at the wrong position
+                        // Encountered an EOF at the wrong pos
                         errno = EINVAL;
 
-                        goto free_and_return_err;
+                        goto free_and_err;
                 }
 
                 if (ferror(file) != 0) {
                         errno = EIO;
 
-                        goto free_and_return_err;
+                        goto free_and_err;
                 }
         }
 
-        file_buffer[file_size] = '\0';
+        (*buffer)[file_size] = '\0';
+
+        return 0;
+
+free_and_err:
+        free(*buffer);
+
+        return -1;
+}
+
+struct sroc_root *sroc_parse_file(FILE *file)
+{
+        int64_t ftell_result = get_file_size(file);
+
+        if (ftell_result < 0) {
+                return NULL;
+        }
+
+        size_t file_size = (size_t)ftell_result;
+
+        char *file_buffer;
+
+        if (read_file_into_buffer(file, &file_buffer, file_size) != 0) {
+                return NULL;
+        }
 
         struct sroc_root *root = sroc_parse_string(file_buffer);
 
