@@ -22,6 +22,8 @@ enum token_type {
 };
 
 struct parser_context {
+        const char *buffer;
+        size_t pos;
         size_t line_num;
         size_t col_num;
         const struct sroc_value *current_value;
