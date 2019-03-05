@@ -73,6 +73,25 @@ free_and_err:
         return -1;
 }
 
+/**
+ * Update the parsing context after a single character iteration through the
+ * parser buffer.
+ *
+ * It cannot be assumed that the previous value will always be n-1 since the
+ * context could have been updated inside of the parse loop. So the only job
+ * of this function is to increment by 1
+ */
+static void increment_parser_context(struct parser_context *context)
+{
+        if (context->buffer[context->pos] == '\n') {
+                // Handle a new line in the buffer
+                ++context->line_num;
+                context->col_num = 0;
+        }
+
+        ++context->pos;
+}
+
 struct sroc_root *sroc_parse_file(FILE *file)
 {
         int64_t ftell_result = get_file_size(file);
@@ -115,17 +134,17 @@ struct sroc_root *sroc_parse_string(const char *string)
 
         struct parser_context *context = init_parser();
 
-        if (root == NULL) {
+        if (context == NULL) {
                 return NULL;
         }
 
-        char *current_line;
-        int64_t line_length;
+        context->buffer = string;
 
-        while ((line_length = string_get_line(string, &current_line)) >= 0) {
-                context->line_num++;
-                string = (string + line_length) + 1;
-                free(current_line);
+        char cur_ch;
+
+        while ((cur_ch = context->buffer[context->pos]) != '\0') {
+                printf("%c\n", cur_ch);
+                increment_parser_context(context);
         }
 
         destroy_parser_context(context);

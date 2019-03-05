@@ -54,6 +54,8 @@ struct parser_context *init_parser(void)
                 return NULL;
         }
 
+        context->buffer = NULL;
+        context->pos = 0;
         context->line_num = 0;
         context->col_num = 0;
         context->current_value = NULL;
