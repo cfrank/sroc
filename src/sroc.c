@@ -92,6 +92,22 @@ static void increment_parser_context(struct parser_context *context)
         ++context->pos;
 }
 
+/**
+ * Consume the currently focused line refrenced to by the context
+ *
+ * We want to land on the newline itself since the parse loop will continue to
+ * incremement one more time
+ */
+static void consume_line(struct parser_context *context)
+{
+        char ch;
+
+        // TODO: (cf) Maybe just do a pos search for \n
+        while ((ch = context->buffer[context->pos]) != '\n') {
+                increment_parser_context(context);
+        }
+}
+
 struct sroc_root *sroc_parse_file(FILE *file)
 {
         int64_t ftell_result = get_file_size(file);
@@ -142,8 +158,31 @@ struct sroc_root *sroc_parse_string(const char *string)
 
         char cur_ch;
 
+        /**
+         * This while loop should not loop over every single char it should
+         * hit the first char of each line. The logic inside the loop should
+         * handle each line and update the pos to the last char in the line
+         * after which incremement_parser_context will incremement the pos to
+         * the beginning of the next line
+         */
         while ((cur_ch = context->buffer[context->pos]) != '\0') {
                 printf("%c\n", cur_ch);
+                switch (char_to_token(cur_ch)) {
+                case OPEN_BRACKET:
+                        // Handle a new section
+                        break;
+                case ALPHA_CHAR:
+                        // Handle a new declaration
+                        break;
+                case COMMENT_START:
+                        // Skip the line since it's a comment
+                        consume_line(context);
+                        break;
+                default:
+                        // Invalid token found
+                        break;
+                }
+
                 increment_parser_context(context);
         }
 

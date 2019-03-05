@@ -11,14 +11,6 @@
 
 enum token_type char_to_token(char input)
 {
-        if (isalpha(input)) {
-                return ALPHA_CHAR;
-        }
-
-        if (isdigit(input)) {
-                return NUMERIC_CHAR;
-        }
-
         switch (input) {
         case ']':
                 return CLOSE_BRACKET;
@@ -40,8 +32,18 @@ enum token_type char_to_token(char input)
         case '"':
                 return QUOTE;
         default:
-                return UNKNOWN;
+                break;
         }
+
+        if (isalpha(input)) {
+                return ALPHA_CHAR;
+        }
+
+        if (isdigit(input)) {
+                return NUMERIC_CHAR;
+        }
+
+        return UNKNOWN;
 }
 
 struct parser_context *init_parser(void)
