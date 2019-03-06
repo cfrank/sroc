@@ -8,6 +8,7 @@
 
 #include "parse_helper.h"
 #include "sroc.h"
+#include "string_helper.h"
 
 enum token_type char_to_token(char input)
 {
@@ -64,6 +65,45 @@ struct parser_context *init_parser(void)
         context->current_table = NULL;
 
         return context;
+}
+
+bool is_valid_declaration(struct parser_context *context)
+{
+        char *name;
+        int64_t name_len = string_get_delimiter(
+                context->buffer + context->pos, '=', &name);
+
+        if (name_len < 0) {
+                return false;
+        }
+
+        printf("%s\n", name);
+
+        free(name);
+
+        return true;
+}
+
+bool is_valid_section(struct parser_context *context)
+{
+        if (char_to_token(context->buffer[context->pos]) != OPEN_BRACKET) {
+                return -1;
+        }
+
+        char *name;
+
+        int64_t name_len = string_get_delimiter(
+                context->buffer + (context->pos + 1), ']', &name);
+
+        if (name_len < 0) {
+                return false;
+        }
+
+        printf("FOUND SECTION NAME: %s\n", name);
+
+        free(name);
+
+        return true;
 }
 
 void destroy_parser_context(struct parser_context *context)

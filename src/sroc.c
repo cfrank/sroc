@@ -127,17 +127,14 @@ struct sroc_root *sroc_parse_file(FILE *file)
         struct sroc_root *root = sroc_parse_string(file_buffer);
 
         if (root == NULL) {
-                goto free_and_return_err;
+                free(file_buffer);
+
+                return NULL;
         }
 
         free(file_buffer);
 
         return root;
-
-free_and_return_err:
-        free(file_buffer);
-
-        return NULL;
 }
 
 struct sroc_root *sroc_parse_string(const char *string)
@@ -170,6 +167,10 @@ struct sroc_root *sroc_parse_string(const char *string)
                 switch (char_to_token(cur_ch)) {
                 case OPEN_BRACKET:
                         // Handle a new section
+                        if (!is_valid_section(context)) {
+                                // Invalid section found
+                                goto free_and_err;
+                        }
                         break;
                 case ALPHA_CHAR:
                         // Handle a new declaration
@@ -189,6 +190,12 @@ struct sroc_root *sroc_parse_string(const char *string)
         destroy_parser_context(context);
 
         return root;
+
+free_and_err:
+        sroc_destroy_root(root);
+        destroy_parser_context(context);
+
+        return NULL;
 }
 
 struct sroc_root *sroc_create_root(void)

@@ -12,6 +12,56 @@
 #include "string_helper.h"
 
 /*
+ * Find the first index of a supplied elimiter character
+ *
+ * reads the supplied string until a supplied terminating char
+ */
+int64_t string_find_delimiter(const char *string, char delimiter,
+                              char terminator)
+{
+        if (string == NULL) {
+                return -1;
+        }
+
+        char ch;
+        int64_t index = 0;
+
+        while ((ch = string[index]) != terminator && ch != '\0') {
+                ++index;
+        }
+
+        if (ch == '\0') {
+                return -1;
+        }
+
+        return index;
+}
+
+/*
+ * Find the last index of a supplied delimiter character
+ *
+ * reads the supplied string until a supplied terminating char
+ */
+int64_t string_find_last_delimiter(const char *string, char delimiter,
+                                   char terminator)
+{
+        size_t string_length = strlen(string);
+
+        if (string == NULL || string_length < 1) {
+                return -1;
+        }
+
+        char ch;
+        int64_t index = (int64_t)string_length - 1;
+
+        while ((ch = string[index]) != terminator && index > 0) {
+                --index;
+        }
+
+        return index;
+}
+
+/*
  * Gets all characters up to a supplied delimiter character.
  *
  * It is assumed that dest is a uninitialized char pointer, which will be

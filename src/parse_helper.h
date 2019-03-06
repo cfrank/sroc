@@ -33,5 +33,7 @@ struct parser_context {
 enum token_type char_to_token(char input);
 
 struct parser_context *init_parser(void);
+bool is_valid_section(struct parser_context *context);
+bool is_valid_declaration(struct parser_context *context);
 void destroy_parser_context(struct parser_context *context);
 
