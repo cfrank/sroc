@@ -33,7 +33,7 @@ struct sroc_value;
 struct sroc_array {
         size_t length;
         enum sroc_type type;
-        struct sroc_value **items;
+        struct sroc_value *items;
 };
 
 /**
@@ -64,7 +64,7 @@ struct sroc_item {
 struct sroc_table {
         char *key;
         size_t size;
-        struct sroc_item **items;
+        struct sroc_item *items;
 };
 
 /**
@@ -74,22 +74,22 @@ struct sroc_table {
  */
 struct sroc_root {
         size_t items_length;
-        struct sroc_item **items;
+        struct sroc_item *items;
         size_t sections_length;
-        struct sroc_table **sections;
+        struct sroc_table *sections;
 };
 
 struct sroc_root *sroc_parse_file(FILE *file);
-struct sroc_root *sroc_parse_string(const char *g);
+struct sroc_root *sroc_parse_string(const char *buffer);
 
 struct sroc_root *sroc_create_root(void);
 struct sroc_table *sroc_create_table(char *key);
 
 // Get a single section from the root table
 int sroc_get_section(const struct sroc_table *root, const char *section,
-                     struct sroc_table **dest);
+                     struct sroc_table *dest);
 int sroc_read_array(const struct sroc_table *root, const char *section,
-                    const char *key, struct sroc_array **dest, size_t *length);
+                    const char *key, struct sroc_array *dest, size_t *length);
 int sroc_read_bool(const struct sroc_table *root, const char *section,
                    const char *key, bool *dest);
 int sroc_read_number(const struct sroc_table *root, const char *section,

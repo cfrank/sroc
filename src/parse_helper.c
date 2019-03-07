@@ -77,11 +77,37 @@ bool is_valid_declaration(struct parser_context *context)
                 return false;
         }
 
-        printf("%s\n", name);
+        printf("DECL Name: %s\n", name);
 
         free(name);
 
         return true;
+}
+
+struct sroc_table *get_section(struct parser_context *context)
+{
+        if (char_to_token(context->buffer[context->pos]) != OPEN_BRACKET) {
+                return NULL;
+        }
+
+        char *key;
+
+        int64_t key_len = string_get_delimiter(
+                context->buffer + (context->pos + 1), ']', &key);
+
+        if (key_len < 0) {
+                return NULL;
+        }
+
+        struct sroc_table *section = sroc_create_table(key);
+
+        if (section == NULL) {
+                free(key);
+
+                return NULL;
+        }
+
+        return section;
 }
 
 bool is_valid_section(struct parser_context *context)

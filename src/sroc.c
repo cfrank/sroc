@@ -108,6 +108,24 @@ static void consume_line(struct parser_context *context)
         }
 }
 
+/**
+ * Get a section and add it to the context
+ */
+static bool add_section(struct parser_context *context)
+{
+        struct sroc_table *section = get_section(context);
+
+        if (section == NULL) {
+                return false;
+        }
+
+        printf("FOUND SECTION: %s\n", section->key);
+
+        sroc_destroy_table(section);
+
+        return true;
+}
+
 struct sroc_root *sroc_parse_file(FILE *file)
 {
         int64_t ftell_result = get_file_size(file);
@@ -163,17 +181,19 @@ struct sroc_root *sroc_parse_string(const char *string)
          * the beginning of the next line
          */
         while ((cur_ch = context->buffer[context->pos]) != '\0') {
-                printf("%c\n", cur_ch);
                 switch (char_to_token(cur_ch)) {
                 case OPEN_BRACKET:
                         // Handle a new section
-                        if (!is_valid_section(context)) {
-                                // Invalid section found
+                        if (!add_section(context)) {
                                 goto free_and_err;
                         }
+
                         break;
                 case ALPHA_CHAR:
                         // Handle a new declaration
+                        if (!is_valid_declaration(context)) {
+                                goto free_and_err;
+                        }
                         break;
                 case COMMENT_START:
                         // Skip the line since it's a comment
@@ -234,11 +254,11 @@ struct sroc_table *sroc_create_table(char *key)
 void sroc_destroy_root(struct sroc_root *root)
 {
         for (size_t i = 0; i < root->items_length; ++i) {
-                sroc_destroy_item(root->items[i]);
+                sroc_destroy_item(&root->items[i]);
         }
 
         for (size_t i = 0; i < root->sections_length; ++i) {
-                sroc_destroy_table(root->sections[i]);
+                sroc_destroy_table(&root->sections[i]);
         }
 
         free(root);
@@ -247,7 +267,7 @@ void sroc_destroy_root(struct sroc_root *root)
 void sroc_destroy_array(struct sroc_array *array)
 {
         for (size_t i = 0; i < array->length; ++i) {
-                sroc_destroy_value(array->items[i]);
+                sroc_destroy_value(&array->items[i]);
         }
 
         free(array);
@@ -276,7 +296,7 @@ void sroc_destroy_table(struct sroc_table *table)
         free(table->key);
 
         for (size_t i = 0; i < table->size; ++i) {
-                sroc_destroy_item(table->items[i]);
+                sroc_destroy_item(&table->items[i]);
         }
 
         free(table);
