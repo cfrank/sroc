@@ -73,59 +73,6 @@ free_and_err:
         return -1;
 }
 
-/**
- * Update the parsing context after a single character iteration through the
- * parser buffer.
- *
- * It cannot be assumed that the previous value will always be n-1 since the
- * context could have been updated inside of the parse loop. So the only job
- * of this function is to increment by 1
- */
-static void increment_parser_context(struct parser_context *context)
-{
-        if (context->buffer[context->pos] == '\n') {
-                // Handle a new line in the buffer
-                ++context->line_num;
-                context->col_num = 0;
-        }
-
-        ++context->pos;
-}
-
-/**
- * Consume the currently focused line refrenced to by the context
- *
- * We want to land on the newline itself since the parse loop will continue to
- * incremement one more time
- */
-static void consume_line(struct parser_context *context)
-{
-        char ch;
-
-        // TODO: (cf) Maybe just do a pos search for \n
-        while ((ch = context->buffer[context->pos]) != '\n') {
-                increment_parser_context(context);
-        }
-}
-
-/**
- * Get a section and add it to the context
- */
-static bool add_section(struct parser_context *context)
-{
-        struct sroc_table *section = get_section(context);
-
-        if (section == NULL) {
-                return false;
-        }
-
-        printf("FOUND SECTION: %s\n", section->key);
-
-        sroc_destroy_table(section);
-
-        return true;
-}
-
 struct sroc_root *sroc_parse_file(FILE *file)
 {
         int64_t ftell_result = get_file_size(file);
@@ -181,27 +128,11 @@ struct sroc_root *sroc_parse_string(const char *string)
          * the beginning of the next line
          */
         while ((cur_ch = context->buffer[context->pos]) != '\0') {
-                switch (char_to_token(cur_ch)) {
-                case OPEN_BRACKET:
-                        // Handle a new section
-                        if (!add_section(context)) {
-                                goto free_and_err;
-                        }
+                if (parse_line(context, cur_ch) < 0) {
+                        sroc_destroy_root(root);
+                        destroy_parser_context(context);
 
-                        break;
-                case ALPHA_CHAR:
-                        // Handle a new declaration
-                        if (!is_valid_declaration(context)) {
-                                goto free_and_err;
-                        }
-                        break;
-                case COMMENT_START:
-                        // Skip the line since it's a comment
-                        consume_line(context);
-                        break;
-                default:
-                        // Invalid token found
-                        break;
+                        return NULL;
                 }
 
                 increment_parser_context(context);
@@ -210,12 +141,6 @@ struct sroc_root *sroc_parse_string(const char *string)
         destroy_parser_context(context);
 
         return root;
-
-free_and_err:
-        sroc_destroy_root(root);
-        destroy_parser_context(context);
-
-        return NULL;
 }
 
 struct sroc_root *sroc_create_root(void)

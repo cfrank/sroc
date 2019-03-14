@@ -10,6 +10,36 @@
 #include "sroc.h"
 #include "string_helper.h"
 
+/**
+ * Get a section and add it to the context
+ */
+static bool add_section(struct parser_context *context)
+{
+        struct sroc_table *section = get_section(context);
+
+        if (section == NULL) {
+                return false;
+        }
+
+        printf("FOUND SECTION: %s\n", section->key);
+
+        sroc_destroy_table(section);
+
+        return true;
+}
+
+/**
+ * Consume the currently focused line refrenced to by the context
+ *
+ * This will place the pos at the end of the line
+ */
+static void consume_line(struct parser_context *context)
+{
+        while (context->buffer[context->pos] != '\n') {
+                increment_parser_context(context);
+        }
+}
+
 enum token_type char_to_token(char input)
 {
         switch (input) {
@@ -47,6 +77,41 @@ enum token_type char_to_token(char input)
         return UNKNOWN;
 }
 
+int parse_line(struct parser_context *context, char ch)
+{
+        switch (char_to_token(ch)) {
+        case OPEN_BRACKET:
+                // Handle a new section
+                if (!add_section(context)) {
+                        return -1;
+                }
+
+                return 0;
+
+                break;
+        case ALPHA_CHAR:
+                // Handle a new declaration
+                if (!is_valid_declaration(context)) {
+                        return -1;
+                }
+
+                return 0;
+
+                break;
+        case COMMENT_START:
+                // Skip the line since it's a comment
+                consume_line(context);
+
+                return 0;
+
+                break;
+        default:
+                return -1;
+        }
+
+        return -1;
+}
+
 struct parser_context *init_parser(void)
 {
         struct parser_context *context = malloc(sizeof(struct parser_context));
@@ -65,6 +130,23 @@ struct parser_context *init_parser(void)
         context->current_table = NULL;
 
         return context;
+}
+
+/**
+ * Update the parsing context after a single character iteration through the
+ * parser buffer.
+ *
+ * When a new line is encountered reset the col_num and increment the line_num
+ */
+void increment_parser_context(struct parser_context *context)
+{
+        if (context->buffer[context->pos] == '\n') {
+                // Handle a new line in the buffer
+                ++context->line_num;
+                context->col_num = 0;
+        }
+
+        ++context->pos;
 }
 
 bool is_valid_declaration(struct parser_context *context)
