@@ -35,7 +35,9 @@ int parse_line(struct parser_context *context, char ch);
 
 struct parser_context *init_parser(void);
 void increment_parser_context(struct parser_context *context);
+void set_parser_context_pos(struct parser_context *context, size_t index);
 
+struct sroc_value *get_declaration(struct parser_context *context);
 struct sroc_table *get_section(struct parser_context *context);
 bool is_valid_declaration(struct parser_context *context);
 void destroy_parser_context(struct parser_context *context);

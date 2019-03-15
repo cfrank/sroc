@@ -18,7 +18,7 @@ static void test_string_get_delimiter_not_found(void **state)
         int expected_result = -1;
         const char *test_string = "Nothing to be found here";
         char *dest = NULL;
-        int64_t result = string_get_delimiter(test_string, 'x', &dest);
+        int64_t result = string_get_delimiter(test_string, &dest, 'x', false);
 
         assert_int_equal(expected_result, result);
         assert_null(dest);
@@ -30,7 +30,7 @@ static void test_string_get_delimiter_found(void **state)
         size_t expected_result = strlen(test_string) - 1; // Doesn't chomp delim
         const char *expected_string = "Found me";
         char *dest;
-        int64_t result = string_get_delimiter(test_string, '!', &dest);
+        int64_t result = string_get_delimiter(test_string, &dest, '!', false);
 
         assert_int_equal(expected_result, result);
         assert_string_equal(expected_string, dest);
@@ -46,7 +46,21 @@ static void test_string_get_delimiter_delimiter_is_string(void **state)
         size_t expected_result = strlen(test_string) - 1;
         const char *expected_string = "";
         char *dest;
-        int64_t result = string_get_delimiter(test_string, '!', &dest);
+        int64_t result = string_get_delimiter(test_string, &dest, '!', false);
+
+        assert_int_equal(expected_result, result);
+        assert_string_equal(expected_string, dest);
+
+        free(dest);
+}
+
+static void test_string_get_delimiter_consume(void **state)
+{
+        const char *test_string = "Hello! Goodbye";
+        const char *expected_string = "Hello!";
+        size_t expected_result = strlen(expected_string);
+        char *dest;
+        int64_t result = string_get_delimiter(test_string, &dest, '!', true);
 
         assert_int_equal(expected_result, result);
         assert_string_equal(expected_string, dest);
@@ -347,6 +361,7 @@ int main(void)
                 cmocka_unit_test(test_string_get_delimiter_not_found),
                 cmocka_unit_test(test_string_get_delimiter_found),
                 cmocka_unit_test(test_string_get_delimiter_delimiter_is_string),
+                cmocka_unit_test(test_string_get_delimiter_consume),
                 cmocka_unit_test(test_string_get_line_found),
                 cmocka_unit_test(test_string_find_first_nonspace_null),
                 cmocka_unit_test(test_string_find_first_nonspace_empty),

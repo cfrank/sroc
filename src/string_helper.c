@@ -70,15 +70,21 @@ int64_t string_find_last_delimiter(const char *string, char delimiter,
  * If a valid string is found the strlen of the resulting string is returned
  * and the string is sent into dest with an appended null terminator
  */
-int64_t string_get_delimiter(const char *string, char delimiter, char **dest)
+int64_t string_get_delimiter(const char *string, char **dest, char delimiter,
+                             bool consume)
 {
         const char *delimiter_location = strchr(string, delimiter);
+        int64_t result_length;
 
         if (delimiter_location == NULL) {
                 return -1;
         }
 
-        int64_t result_length = delimiter_location - string;
+        if (consume) {
+                result_length = (delimiter_location - string) + 1;
+        } else {
+                result_length = delimiter_location - string;
+        }
 
         // Make sure a valid cast to size_t can be accomplished
         assert(result_length >= 0);
@@ -111,7 +117,7 @@ int64_t string_get_delimiter(const char *string, char delimiter, char **dest)
  */
 int64_t string_get_line(const char *string, char **dest)
 {
-        return string_get_delimiter(string, '\n', dest);
+        return string_get_delimiter(string, dest, '\n', false);
 }
 
 /**
